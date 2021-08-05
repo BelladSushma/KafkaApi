@@ -4,12 +4,12 @@
 
 Before deletion:
 
-```./kafka-console-consumer.sh --topic test_sushma --bootstrap-server localhost:9092 --from-beginning```
-message1
-message2
-message3
-message4
-message5
+```./kafka-console-consumer.sh --topic test_sushma --bootstrap-server localhost:9092 --from-beginning
+message1 <br />
+message2 <br />
+message3 <br />
+message4 <br />
+message5```
 
 After deletion:
 
