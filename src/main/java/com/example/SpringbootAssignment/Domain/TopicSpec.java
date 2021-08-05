@@ -11,10 +11,6 @@ import java.util.Map;
 public class TopicSpec {
     private String brokerUrl;
     private String topicName;
-    private Short replicasCount;
-    private Integer partitionCount;
-    private Boolean compactedTopic;
-    private Map<String,String> topicConfig= new HashMap<String,String>();
 
 }
 
