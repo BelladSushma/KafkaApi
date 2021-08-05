@@ -21,15 +21,15 @@ message5
 
 Before deleting the topic, topic list:
 
-[
-    "demo_topic",
-    "test_sushma",
-    "__consumer_offsets"
+[ <br />
+    "demo_topic", <br />
+    "test_sushma", <br />
+    "__consumer_offsets" <br />
 ]
 
 After deleting topic, topiclist:
 
-[
-    "test_sushma",
-    "__consumer_offsets"
+[ <br />
+    "test_sushma", <br />
+    "__consumer_offsets" <br />
 ]
