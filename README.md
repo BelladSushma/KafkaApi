@@ -4,7 +4,7 @@
 
 Before deletion:
 
-./kafka-console-consumer.sh --topic test_sushma --bootstrap-server localhost:9092 --from-beginning
+```./kafka-console-consumer.sh --topic test_sushma --bootstrap-server localhost:9092 --from-beginning```
 message1
 message2
 message3
