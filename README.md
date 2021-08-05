@@ -19,7 +19,7 @@ message5
 
 ### Deleting the topic:
 
-Before deleting the topic, topic list:
+Before deleting the topic, topic list in the cluster:
 
 [ <br />
     "demo_topic", <br />
@@ -27,7 +27,7 @@ Before deleting the topic, topic list:
     "__consumer_offsets" <br />
 ]
 
-After deleting topic, topiclist:
+After deleting topic, topic list in the cluster:
 
 [ <br />
     "test_sushma", <br />
