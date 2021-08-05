@@ -1,6 +1,6 @@
 # SpringbootAssignment
 
-## Deleting the messages:
+### Deleting the messages:
 
 Before deletion:
 
@@ -17,7 +17,7 @@ After deletion:
 message4
 message5
 
-Deleting the topic:
+### Deleting the topic:
 
 Before deleting the topic, topic list:
 
