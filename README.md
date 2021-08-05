@@ -27,7 +27,7 @@ Before deleting the topic, topic list in the cluster:
     "__consumer_offsets" <br />
 ]
 
-After deleting topic, topic list in the cluster:
+After deleting topic (demo_topic), topic list in the cluster:
 
 [ <br />
     "test_sushma", <br />
