@@ -23,6 +23,7 @@ public class KafkaMessagingService implements MessagingService{
     private ConsumerFactory<String,String> consumerFactory;
     private static final Logger logger = LoggerFactory.getLogger(KafkaMessagingService.class);
 
+    //listing the topics present in the cluster
     @Override
     public Set<String> getTopics(){
         try (Consumer<String, String> consumer =
@@ -36,6 +37,7 @@ public class KafkaMessagingService implements MessagingService{
         }
     }
 
+    //creating the topic
     @Override
     public boolean createTopic(TopicSpec topicSpec) {
         NewTopic topic = new NewTopic(topicSpec.getTopicName(), topicSpec.getPartitionCount(), topicSpec.getReplicasCount());
@@ -58,6 +60,7 @@ public class KafkaMessagingService implements MessagingService{
         return true;
     }
 
+    //displaying topic details
     @Override
     public boolean describeTopic(String topicName) {
 
@@ -90,6 +93,7 @@ public class KafkaMessagingService implements MessagingService{
         }
     }
 
+    //deleting the topic
     @Override
     public void deleteTopic(TopicSpec topicSpec){
         Properties brokerConfig = new Properties();
@@ -99,19 +103,20 @@ public class KafkaMessagingService implements MessagingService{
         DeleteTopicsResult deleteTopicsResult = adminClient.deleteTopics(Collections.singleton(topicSpec.getTopicName()));
     }
 
+    //sending message to the topic
     @Override
-    public void publishMessage() {
+    public void publishMessage(String topicName, String key, String value) {
         Properties props = new Properties();
         props.put("bootstrap.servers", "localhost:9092");
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         Producer<String, String> producer = new KafkaProducer<>(props);
-        ProducerRecord<String,String> message=new ProducerRecord<>("hello_topic1","key","value1");
+        ProducerRecord<String,String> message=new ProducerRecord<>(topicName,key,value);
         producer.send(message);
         producer.close();
     }
 
-
+    //consuming the messages from the topic
     @Override
     public void consumeMessage(String topicName, String groupID) {
         Properties props = new Properties();
@@ -134,6 +139,7 @@ public class KafkaMessagingService implements MessagingService{
 
     }
 
+    //deleting the messages from a given topic
     @Override
     public void deleteMessage(String topicName, Integer partitionValue, Integer offsetValue){
         Properties props = new Properties();
@@ -147,6 +153,7 @@ public class KafkaMessagingService implements MessagingService{
         adminClient.deleteRecords(delete);
     }
 
+    //describing the consumer group
     @Override
     public void describeGroup(String brokerUrl, String groupID) throws ExecutionException, InterruptedException {
         Properties properties = new Properties();
@@ -157,8 +164,9 @@ public class KafkaMessagingService implements MessagingService{
         ListConsumerGroupOffsetsResult listConsumerGroupOffsetsResult = client.listConsumerGroupOffsets(groupID);
         if (!listConsumerGroupOffsetsResult.partitionsToOffsetAndMetadata().isDone()) {
         }
+        System.out.println("Consumer group details: \n");
             listConsumerGroupOffsetsResult.partitionsToOffsetAndMetadata().get().forEach((k, v) -> {
-                System.out.println("Consumer group details: \n");
+
                 System.out.println("TOPIC: " + k.topic() + "  Partition: " + k.partition() + "  offset: " + v.offset());
             });
     }

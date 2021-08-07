@@ -6,7 +6,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 public interface MessagingService {
-    public void publishMessage();
+    public void publishMessage(String topicName, String key, String value);
     public void consumeMessage(String topicName, String groupID);
     public void deleteMessage(String topicName, Integer partitionValue, Integer offsetValue);
     public void deleteTopic(TopicSpec topicSpec);

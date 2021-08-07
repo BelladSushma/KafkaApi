@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.kafka.KafkaException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
@@ -23,11 +24,17 @@ public final class KafkaController {
     private static final Logger logger = LoggerFactory.getLogger(KafkaController.class);
 
     @PostMapping(value = "/publish")
-    public ResponseEntity<String> sendMessageToKafkaTopic() {
+    public ResponseEntity<String> sendMessageToKafkaTopic(@RequestParam String topicName,
+                                                          @RequestParam String key,
+                                                          @RequestParam String value) {
         ResponseEntity<String> response = null;
         try {
-            messagingService.publishMessage();
+            messagingService.publishMessage(topicName,key,value);
             response = new ResponseEntity<String>("Message sent", HttpStatus.OK);
+        }
+        catch(KafkaException e){
+            logger.info("Error: ", e.getMessage());
+            throw e;
         }
         catch(Exception e) {
             logger.error("System Error:",e.getMessage());
@@ -50,6 +57,10 @@ public final class KafkaController {
             return ResponseEntity.ok().body("created the topic " + topicSpec.getTopicName() + "\nNo of Partitions= " + topicSpec.getPartitionCount()
                     + "\nNo of Replicas = " + topicSpec.getReplicasCount());
         }
+        catch(KafkaException e){
+            logger.info("Error: ", e.getMessage());
+            throw e;
+        }
         catch (Exception e){
             logger.error("System Error:",e.getMessage());
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -65,6 +76,10 @@ public final class KafkaController {
             else
                 return ResponseEntity.ok().body("Topic is not present!!");
         }
+        catch(KafkaException e){
+            logger.info("Error: ", e.getMessage());
+            throw e;
+        }
         catch (Exception e){
             logger.error("System Error:",e.getMessage());
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -76,6 +91,10 @@ public final class KafkaController {
         try {
             messagingService.deleteTopic(topicSpec);
             return ResponseEntity.ok().body("deleted the topic " + topicSpec.getTopicName());
+        }
+        catch(KafkaException e){
+            logger.info("Error: ", e.getMessage());
+            throw e;
         }
         catch (Exception e){
             logger.error("System Error:",e.getMessage());
@@ -89,6 +108,10 @@ public final class KafkaController {
             messagingService.describeGroup(brokerUrl, groupID);
             return ResponseEntity.ok().body("described the group");
         }
+        catch(KafkaException e){
+            logger.info("Error: ", e.getMessage());
+            throw e;
+        }
         catch (Exception e){
             logger.error("System Error:",e.getMessage());
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -100,6 +123,10 @@ public final class KafkaController {
         try {
             messagingService.deleteMessage(topicName, partitionValue, offsetValue);
             return ResponseEntity.ok().body("deleted the records");
+        }
+        catch(KafkaException e){
+            logger.info("Error: ", e.getMessage());
+            throw e;
         }
         catch (Exception e){
             logger.error("System Error:",e.getMessage());
@@ -113,6 +140,10 @@ public final class KafkaController {
             messagingService.consumeMessage(topicName, groupID);
             return ResponseEntity.ok().body("consumed the messages");
         }
+        catch(KafkaException e){
+            logger.info("Error: ", e.getMessage());
+            throw e;
+        }
         catch (Exception e){
             logger.error("System Error:",e.getMessage());
             return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -121,14 +152,3 @@ public final class KafkaController {
 
 }
 
-
-@ControllerAdvice
-class ExceptionHelper {
-    private static final Logger logger = LoggerFactory.getLogger(ExceptionHelper.class);
-
-    @ExceptionHandler(value = { Exception.class })
-    public ResponseEntity<Object> handleException(Exception ex) {
-        logger.error("Exception: ",ex.getMessage());
-        return new ResponseEntity<Object>(ex.getMessage(),HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-}
