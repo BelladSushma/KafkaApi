@@ -1,7 +1,7 @@
-package com.example.SpringbootAssignment.Controller;
+package com.example.KafkaApi.Controller;
 
-import com.example.SpringbootAssignment.Domain.TopicSpec;
-import com.example.SpringbootAssignment.Service.*;
+import com.example.KafkaApi.Domain.TopicSpec;
+import com.example.KafkaApi.Service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

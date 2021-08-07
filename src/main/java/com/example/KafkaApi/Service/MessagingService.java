@@ -1,6 +1,6 @@
-package com.example.SpringbootAssignment.Service;
+package com.example.KafkaApi.Service;
 
-import com.example.SpringbootAssignment.Domain.TopicSpec;
+import com.example.KafkaApi.Domain.TopicSpec;
 
 import java.util.Set;
 import java.util.concurrent.ExecutionException;

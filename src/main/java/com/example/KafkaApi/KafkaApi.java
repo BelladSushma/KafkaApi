@@ -1,4 +1,4 @@
-package com.example.SpringbootAssignment;
+package com.example.KafkaApi;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

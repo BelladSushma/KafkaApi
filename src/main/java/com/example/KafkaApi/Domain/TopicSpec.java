@@ -1,4 +1,4 @@
-package com.example.SpringbootAssignment.Domain;
+package com.example.KafkaApi.Domain;
 
 import lombok.Getter;
 import lombok.Setter;
