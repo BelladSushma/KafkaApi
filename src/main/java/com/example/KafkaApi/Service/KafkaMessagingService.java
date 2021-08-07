@@ -59,27 +59,35 @@ public class KafkaMessagingService implements MessagingService{
     }
 
     @Override
-    public void describeTopic(String topicName) {
+    public boolean describeTopic(String topicName) {
+
         Consumer<String, String> consumer = consumerFactory.createConsumer();
+        Map<String, List<PartitionInfo>> map = consumer.listTopics();
+        if (map.keySet().contains(topicName)) {
 
-        logger.info("Fetching endOffsets For Topic : {} ");
+            logger.info("Fetching endOffsets For Topic : {} ");
 
-        logger.info("Fetching endOffsets For Topic : {} ", topicName);
+            logger.info("Fetching endOffsets For Topic : {} ", topicName);
 
-        List<PartitionInfo> partitions = consumer.partitionsFor(topicName);
+            List<PartitionInfo> partitions = consumer.partitionsFor(topicName);
 
-        for (PartitionInfo partition : partitions) {
-            logger.debug("Topic :" + topicName + "\tPartition " + partition.partition());
-            TopicPartition topicPartition = new TopicPartition(topicName, partition.partition());
-            List<TopicPartition> listPartition = Arrays.asList(topicPartition);
-            consumer.assign(listPartition);
-            consumer.seekToEnd(listPartition);
-            long endOffset = consumer.position(topicPartition);
-            System.out.println("Topic :" + topicName + "\tPartition : " + partition.partition() + "\tLogEndOffset : " + endOffset
-            );
+            for (PartitionInfo partition : partitions) {
+                logger.debug("Topic :" + topicName + "\tPartition " + partition.partition());
+                TopicPartition topicPartition = new TopicPartition(topicName, partition.partition());
+                List<TopicPartition> listPartition = Arrays.asList(topicPartition);
+                consumer.assign(listPartition);
+                consumer.seekToEnd(listPartition);
+                long endOffset = consumer.position(topicPartition);
+                System.out.println("Topic :" + topicName + "\tPartition : " + partition.partition() + "\tLogEndOffset : " + endOffset
+                );
+            }
+            consumer.close();
+            return true;
         }
-        consumer.close();
-
+        else{
+            logger.info("Topic is not present!!");
+            return false;
+        }
     }
 
     @Override
@@ -98,7 +106,7 @@ public class KafkaMessagingService implements MessagingService{
         props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
         Producer<String, String> producer = new KafkaProducer<>(props);
-        ProducerRecord<String,String> message=new ProducerRecord<>("hello_topic","key","value");
+        ProducerRecord<String,String> message=new ProducerRecord<>("hello_topic1","key","value1");
         producer.send(message);
         producer.close();
     }

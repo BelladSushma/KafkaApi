@@ -12,7 +12,7 @@ public interface MessagingService {
     public void deleteTopic(TopicSpec topicSpec);
     public Set<String> getTopics();
     public boolean createTopic(TopicSpec topicSpec);
-    public void describeTopic(String topicName);
+    public boolean describeTopic(String topicName);
     public void describeGroup(String brokerUrl, String groupID) throws ExecutionException, InterruptedException;
 
 }
