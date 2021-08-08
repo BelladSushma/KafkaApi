@@ -43,13 +43,13 @@ curl --location --request GET 'localhost:8080/list'
 
 ## Describing the topic
 
-```aidl
+```
 curl --location --request GET 'localhost:8080/describe/hello_topic1'
 ```
 
 ## Describing the consumer group
 
-```aidl
+```
 curl --location --request GET 'localhost:8080/group?brokerUrl=localhost:9092&groupID=testing'
 ```
 
