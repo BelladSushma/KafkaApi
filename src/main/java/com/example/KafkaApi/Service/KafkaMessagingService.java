@@ -155,7 +155,7 @@ public class KafkaMessagingService implements MessagingService{
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
         String topic = topicName;
         consumer.subscribe(Arrays.asList(topic));
-        System.out.println("topic name = " + topic);
+        logger.info("topic name = " + topic);
         ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
         for (ConsumerRecord<String, String> record : records) {
                 messages.add(record.value());
@@ -199,7 +199,7 @@ public class KafkaMessagingService implements MessagingService{
         ListConsumerGroupOffsetsResult listConsumerGroupOffsetsResult = client.listConsumerGroupOffsets(groupID);
         if (!listConsumerGroupOffsetsResult.partitionsToOffsetAndMetadata().isDone()) {
         }
-        System.out.println("Consumer group details: \n");
+        logger.info("Consumer group details: \n");
             listConsumerGroupOffsetsResult.partitionsToOffsetAndMetadata().get().forEach((k, v) -> {
                 DescribeGroupResult describeGroupResult = new DescribeGroupResult();
                 describeGroupResult.setTopicName(k.topic());
