@@ -1,36 +1,72 @@
-# 
-KafkaApi
+# KafkaApi
 
-### Deleting the messages:
+This is a kafka admin api which does the admin operations like creating topic, describing topic, deleting topic and it will expose rest api to publish and consume messages from kafka topic.
 
-Before deletion:
+In order to run the application, install zookeeper and kafka.
 
-```./kafka-console-consumer.sh --topic test_sushma --bootstrap-server localhost:9092 --from-beginning``` <br />
-message1 <br />
-message2 <br />
-message3 <br />
-message4 <br />
-message5
+## Create Topic
 
-After deletion:
+```aidl
+curl --location --request POST 'localhost:8080/topic' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "brokerUrl" : "localhost:9092",
+    "topicName" : "hello_topicc",
+    "replicasCount" : 1,
+    "partitionCount" : 3,
+    "compactedTopic" : false
+}'
+```
 
-```./kafka-console-consumer.sh --topic test_sushma --bootstrap-server localhost:9092 --from-beginning``` <br />
-message4 <br />
-message5
+## Publish Messages
 
-### Deleting the topic:
+```aidl
+curl --location --request POST 'localhost:8080/publish?value=Good Evening&topicName=hello_topic1&key=2' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "brokerUrl" : "localhost:9092",
+    "topicName" : "hello_sushma"
+}'
+```
 
-Before deleting the topic, topic list in the cluster:
+## Consume Messages
 
-[ <br />
-    "demo_topic", <br />
-    "test_sushma", <br />
-    "__consumer_offsets" <br />
-]
+```aidl
+curl --location --request GET 'localhost:8080/consume?topicName=hello_topic1&groupID=testing'
+```
 
-After deleting topic (demo_topic), topic list in the cluster:
+## Listing the topics in a cluster
 
-[ <br />
-    "test_sushma", <br />
-    "__consumer_offsets" <br />
-]
+```aidl
+curl --location --request GET 'localhost:8080/list'
+```
+
+## Describing the topic
+
+```aidl
+curl --location --request GET 'localhost:8080/describe/hello_topic1'
+```
+
+## Describing the consumer group
+
+```aidl
+curl --location --request GET 'localhost:8080/group?brokerUrl=localhost:9092&groupID=testing'
+```
+
+## Deleting the topic
+
+```aidl
+curl --location --request DELETE 'localhost:8080/delete' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "brokerUrl" : "localhost:9092",
+    "topicName" : "hello_topicc"
+}'
+```
+
+## Deleting the Messages
+
+```aidl
+curl --location --request DELETE 'localhost:8080/delete/hello_topic1?partitionValue=1&offsetValue=3'
+```
+

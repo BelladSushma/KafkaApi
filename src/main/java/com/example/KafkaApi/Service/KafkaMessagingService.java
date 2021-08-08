@@ -1,5 +1,7 @@
 package com.example.KafkaApi.Service;
 
+import com.example.KafkaApi.Domain.DescribeGroupResult;
+import com.example.KafkaApi.Domain.DescribeTopic;
 import com.example.KafkaApi.Domain.TopicSpec;
 import org.apache.kafka.clients.admin.*;
 import org.apache.kafka.clients.consumer.*;
@@ -62,35 +64,38 @@ public class KafkaMessagingService implements MessagingService{
 
     //displaying topic details
     @Override
-    public boolean describeTopic(String topicName) {
-
-        Consumer<String, String> consumer = consumerFactory.createConsumer();
-        Map<String, List<PartitionInfo>> map = consumer.listTopics();
-        if (map.keySet().contains(topicName)) {
-
-            logger.info("Fetching endOffsets For Topic : {} ");
-
-            logger.info("Fetching endOffsets For Topic : {} ", topicName);
-
-            List<PartitionInfo> partitions = consumer.partitionsFor(topicName);
-
-            for (PartitionInfo partition : partitions) {
-                logger.debug("Topic :" + topicName + "\tPartition " + partition.partition());
-                TopicPartition topicPartition = new TopicPartition(topicName, partition.partition());
-                List<TopicPartition> listPartition = Arrays.asList(topicPartition);
-                consumer.assign(listPartition);
-                consumer.seekToEnd(listPartition);
-                long endOffset = consumer.position(topicPartition);
-                System.out.println("Topic :" + topicName + "\tPartition : " + partition.partition() + "\tLogEndOffset : " + endOffset
-                );
-            }
-            consumer.close();
-            return true;
+    public ArrayList<DescribeTopic> describeTopic(String topicName) throws ExecutionException, InterruptedException {
+        Properties brokerConfig = new Properties();
+        brokerConfig.put("bootstrap.servers", "localhost:9092");
+        AdminClient admin = AdminClient.create(brokerConfig);
+        ArrayList<String> topics = new ArrayList<String>();
+        topics.add(topicName);
+        DescribeTopicsResult describeTopicsResult = admin.describeTopics(topics);
+        while(!describeTopicsResult.all().isDone()){
+            //waiting for result [Future Object is returned immediately]
         }
-        else{
-            logger.info("Topic is not present!!");
-            return false;
-        }
+        ArrayList<DescribeTopic> describeTopics = new ArrayList<DescribeTopic>();
+        describeTopicsResult.all().get().forEach((key,topic)->{
+                    topic.partitions().forEach(partition->{
+                        DescribeTopic result = new DescribeTopic();
+                        result.setTopicName(topicName);
+                        result.setPartition(partition.partition());
+                        List<Integer> replicas=new ArrayList<Integer>();
+                        List<Integer> isrs=new ArrayList<Integer>();
+
+                        partition.isr().forEach(isr->{
+                            isrs.add(isr.id());
+                        });
+                        partition.replicas().forEach(replica->{
+                            replicas.add(replica.id());
+                        });
+                        result.setReplicas(replicas);
+                        result.setInsyncreplicas(isrs);
+                        result.setLeader(partition.leader().id());
+                        describeTopics.add(result);
+                    });
+        });
+        return describeTopics;
     }
 
     //deleting the topic
@@ -137,7 +142,8 @@ public class KafkaMessagingService implements MessagingService{
 
     //consuming the messages from the topic
     @Override
-    public void consumeMessage(String topicName, String groupID) {
+    public ArrayList<String> consumeMessage(String topicName, String groupID) {
+        ArrayList<String> messages = new ArrayList<String>();
         Properties props = new Properties();
         props.setProperty("bootstrap.servers", "localhost:9092");
         props.setProperty("group.id", groupID);
@@ -150,12 +156,12 @@ public class KafkaMessagingService implements MessagingService{
         String topic = topicName;
         consumer.subscribe(Arrays.asList(topic));
         System.out.println("topic name = " + topic);
-        while (true) {
-            ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
-            for (ConsumerRecord<String, String> record : records)
-                System.out.printf("offset = %d, key = %s, value = %s%n", record.offset(), record.key(), record.value());
+        ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(1000));
+        for (ConsumerRecord<String, String> record : records) {
+                messages.add(record.value());
+                logger.info("offset = %d, key = %s, value = %s%n", record.offset(), record.key(), record.value());
         }
-
+        return messages;
     }
 
     //deleting the messages from a given topic
@@ -183,7 +189,8 @@ public class KafkaMessagingService implements MessagingService{
 
     //describing the consumer group
     @Override
-    public void describeGroup(String brokerUrl, String groupID) throws ExecutionException, InterruptedException {
+    public ArrayList<DescribeGroupResult> describeGroup(String brokerUrl, String groupID) throws ExecutionException, InterruptedException {
+        ArrayList<DescribeGroupResult> results = new ArrayList<DescribeGroupResult>();
         Properties properties = new Properties();
         properties.put("bootstrap.servers", brokerUrl);
         properties.put("group.id", groupID);
@@ -194,8 +201,13 @@ public class KafkaMessagingService implements MessagingService{
         }
         System.out.println("Consumer group details: \n");
             listConsumerGroupOffsetsResult.partitionsToOffsetAndMetadata().get().forEach((k, v) -> {
-
-                System.out.println("TOPIC: " + k.topic() + "  Partition: " + k.partition() + "  offset: " + v.offset());
+                DescribeGroupResult describeGroupResult = new DescribeGroupResult();
+                describeGroupResult.setTopicName(k.topic());
+                describeGroupResult.setPartitionValue(k.partition());
+                describeGroupResult.setOffsetValue(v.offset());
+                results.add(describeGroupResult);
+                logger.info("TOPIC: " + k.topic() + "  Partition: " + k.partition() + "  offset: " + v.offset());
             });
+            return results;
     }
 }
