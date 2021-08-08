@@ -29,8 +29,11 @@ public final class KafkaController {
                                                           @RequestParam String value) {
         ResponseEntity<String> response = null;
         try {
-            messagingService.publishMessage(topicName,key,value);
-            response = new ResponseEntity<String>("Message sent", HttpStatus.OK);
+            boolean res = messagingService.publishMessage(topicName,key,value);
+            if(res)
+                response = new ResponseEntity<String>("Message sent", HttpStatus.OK);
+            else
+                response = new ResponseEntity<String>("Topic is not present", HttpStatus.BAD_REQUEST);
         }
         catch(KafkaException e){
             logger.info("Error: ", e.getMessage());
@@ -38,7 +41,7 @@ public final class KafkaController {
         }
         catch(Exception e) {
             logger.error("System Error:",e.getMessage());
-            response = new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            response = new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         return response;
     }
@@ -63,7 +66,7 @@ public final class KafkaController {
         }
         catch (Exception e){
             logger.error("System Error:",e.getMessage());
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -72,9 +75,9 @@ public final class KafkaController {
         try {
             boolean res = messagingService.describeTopic(topicName);
             if(res)
-                return ResponseEntity.ok().body("described the topic");
+                return new ResponseEntity<String>("described the topic", HttpStatus.OK);
             else
-                return ResponseEntity.ok().body("Topic is not present!!");
+                return new ResponseEntity<String>("Topic is not present!!",HttpStatus.BAD_REQUEST);
         }
         catch(KafkaException e){
             logger.info("Error: ", e.getMessage());
@@ -82,15 +85,18 @@ public final class KafkaController {
         }
         catch (Exception e){
             logger.error("System Error:",e.getMessage());
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @DeleteMapping(value = "/delete")
     public ResponseEntity<String> deleteTopic(@RequestBody TopicSpec topicSpec){
         try {
-            messagingService.deleteTopic(topicSpec);
-            return ResponseEntity.ok().body("deleted the topic " + topicSpec.getTopicName());
+            boolean res = messagingService.deleteTopic(topicSpec);
+            if(res)
+                return new ResponseEntity<String>("deleted the topic " + topicSpec.getTopicName(),HttpStatus.OK);
+            else
+                return new ResponseEntity<String>("Topic is not present!!", HttpStatus.BAD_REQUEST);
         }
         catch(KafkaException e){
             logger.info("Error: ", e.getMessage());
@@ -98,7 +104,7 @@ public final class KafkaController {
         }
         catch (Exception e){
             logger.error("System Error:",e.getMessage());
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -114,15 +120,18 @@ public final class KafkaController {
         }
         catch (Exception e){
             logger.error("System Error:",e.getMessage());
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @DeleteMapping(value = "/delete/{topic}")
     public ResponseEntity<String> deleteMsgs(@PathVariable("topic") String topicName, @RequestParam Integer partitionValue, @RequestParam Integer offsetValue){
         try {
-            messagingService.deleteMessage(topicName, partitionValue, offsetValue);
-            return ResponseEntity.ok().body("deleted the records");
+            boolean res = messagingService.deleteMessage(topicName, partitionValue, offsetValue);
+            if(res)
+                return ResponseEntity.ok().body("Deleted the records");
+            else
+                return ResponseEntity.ok().body("Topic is not present");
         }
         catch(KafkaException e){
             logger.info("Error: ", e.getMessage());
@@ -130,7 +139,7 @@ public final class KafkaController {
         }
         catch (Exception e){
             logger.error("System Error:",e.getMessage());
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -146,7 +155,7 @@ public final class KafkaController {
         }
         catch (Exception e){
             logger.error("System Error:",e.getMessage());
-            return new ResponseEntity<String>(HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<String>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

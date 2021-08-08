@@ -6,10 +6,10 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 public interface MessagingService {
-    public void publishMessage(String topicName, String key, String value);
+    public boolean publishMessage(String topicName, String key, String value);
     public void consumeMessage(String topicName, String groupID);
-    public void deleteMessage(String topicName, Integer partitionValue, Integer offsetValue);
-    public void deleteTopic(TopicSpec topicSpec);
+    public boolean deleteMessage(String topicName, Integer partitionValue, Integer offsetValue);
+    public boolean deleteTopic(TopicSpec topicSpec);
     public Set<String> getTopics();
     public boolean createTopic(TopicSpec topicSpec);
     public boolean describeTopic(String topicName);

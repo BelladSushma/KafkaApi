@@ -95,25 +95,44 @@ public class KafkaMessagingService implements MessagingService{
 
     //deleting the topic
     @Override
-    public void deleteTopic(TopicSpec topicSpec){
-        Properties brokerConfig = new Properties();
-        brokerConfig.put("bootstrap.servers", topicSpec.getBrokerUrl());
+    public boolean deleteTopic(TopicSpec topicSpec){
+        Consumer<String, String> consumer = consumerFactory.createConsumer();
+        Map<String, List<PartitionInfo>> map = consumer.listTopics();
 
-        AdminClient adminClient = AdminClient.create(brokerConfig);
-        DeleteTopicsResult deleteTopicsResult = adminClient.deleteTopics(Collections.singleton(topicSpec.getTopicName()));
+        if (map.keySet().contains(topicSpec.getTopicName())) {
+            Properties brokerConfig = new Properties();
+            brokerConfig.put("bootstrap.servers", topicSpec.getBrokerUrl());
+
+            AdminClient adminClient = AdminClient.create(brokerConfig);
+            DeleteTopicsResult deleteTopicsResult = adminClient.deleteTopics(Collections.singleton(topicSpec.getTopicName()));
+            return true;
+        }
+        else{
+            logger.info("Topic is not present!!");
+            return false;
+        }
     }
 
     //sending message to the topic
     @Override
-    public void publishMessage(String topicName, String key, String value) {
-        Properties props = new Properties();
-        props.put("bootstrap.servers", "localhost:9092");
-        props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-        Producer<String, String> producer = new KafkaProducer<>(props);
-        ProducerRecord<String,String> message=new ProducerRecord<>(topicName,key,value);
-        producer.send(message);
-        producer.close();
+    public boolean publishMessage(String topicName, String key, String value) {
+        Consumer<String, String> consumer = consumerFactory.createConsumer();
+        Map<String, List<PartitionInfo>> map = consumer.listTopics();
+        if (map.keySet().contains(topicName)) {
+            Properties props = new Properties();
+            props.put("bootstrap.servers", "localhost:9092");
+            props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+            props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
+            Producer<String, String> producer = new KafkaProducer<>(props);
+            ProducerRecord<String, String> message = new ProducerRecord<>(topicName, key, value);
+            producer.send(message);
+            producer.close();
+            return true;
+        }
+        else{
+            logger.info("Topic is not present!!");
+            return false;
+        }
     }
 
     //consuming the messages from the topic
@@ -141,16 +160,25 @@ public class KafkaMessagingService implements MessagingService{
 
     //deleting the messages from a given topic
     @Override
-    public void deleteMessage(String topicName, Integer partitionValue, Integer offsetValue){
-        Properties props = new Properties();
-        props.put("bootstrap.servers", "localhost:9092");
-        AdminClient adminClient = AdminClient.create(props);
+    public boolean deleteMessage(String topicName, Integer partitionValue, Integer offsetValue){
+        Consumer<String, String> consumer = consumerFactory.createConsumer();
+        Map<String, List<PartitionInfo>> map = consumer.listTopics();
+        if (map.keySet().contains(topicName)) {
+            Properties props = new Properties();
+            props.put("bootstrap.servers", "localhost:9092");
+            AdminClient adminClient = AdminClient.create(props);
 
-        RecordsToDelete recordsToDelete = RecordsToDelete.beforeOffset(offsetValue);
-        TopicPartition topicPartition = new TopicPartition(topicName, partitionValue);
-        Map<TopicPartition, RecordsToDelete> delete = new HashMap<>();
-        delete.put(topicPartition, recordsToDelete);
-        adminClient.deleteRecords(delete);
+            RecordsToDelete recordsToDelete = RecordsToDelete.beforeOffset(offsetValue);
+            TopicPartition topicPartition = new TopicPartition(topicName, partitionValue);
+            Map<TopicPartition, RecordsToDelete> delete = new HashMap<>();
+            delete.put(topicPartition, recordsToDelete);
+            adminClient.deleteRecords(delete);
+            return true;
+        }
+        else{
+            logger.info("Topic is not present!!");
+            return false;
+        }
     }
 
     //describing the consumer group
