@@ -6,7 +6,7 @@ In order to run the application, install zookeeper and kafka.
 
 ## Create Topic
 
-```aidl
+```
 curl --location --request POST 'localhost:8080/topic' \
 --header 'Content-Type: application/json' \
 --data-raw '{
