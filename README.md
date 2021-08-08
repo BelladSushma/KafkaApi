@@ -31,7 +31,7 @@ curl --location --request POST 'localhost:8080/publish?value=Good Evening&topicN
 
 ## Consume Messages
 
-```aidl
+```
 curl --location --request GET 'localhost:8080/consume?topicName=hello_topic1&groupID=testing'
 ```
 
