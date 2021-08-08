@@ -6,7 +6,7 @@ In order to run the application, install zookeeper and kafka.
 
 ## Create Topic
 
-```aidl
+```
 curl --location --request POST 'localhost:8080/topic' \
 --header 'Content-Type: application/json' \
 --data-raw '{
@@ -20,7 +20,7 @@ curl --location --request POST 'localhost:8080/topic' \
 
 ## Publish Messages
 
-```aidl
+```
 curl --location --request POST 'localhost:8080/publish?value=Good Evening&topicName=hello_topic1&key=2' \
 --header 'Content-Type: application/json' \
 --data-raw '{
@@ -31,31 +31,31 @@ curl --location --request POST 'localhost:8080/publish?value=Good Evening&topicN
 
 ## Consume Messages
 
-```aidl
+```
 curl --location --request GET 'localhost:8080/consume?topicName=hello_topic1&groupID=testing'
 ```
 
 ## Listing the topics in a cluster
 
-```aidl
+```
 curl --location --request GET 'localhost:8080/list'
 ```
 
 ## Describing the topic
 
-```aidl
+```
 curl --location --request GET 'localhost:8080/describe/hello_topic1'
 ```
 
 ## Describing the consumer group
 
-```aidl
+```
 curl --location --request GET 'localhost:8080/group?brokerUrl=localhost:9092&groupID=testing'
 ```
 
 ## Deleting the topic
 
-```aidl
+```
 curl --location --request DELETE 'localhost:8080/delete' \
 --header 'Content-Type: application/json' \
 --data-raw '{
@@ -66,7 +66,7 @@ curl --location --request DELETE 'localhost:8080/delete' \
 
 ## Deleting the Messages
 
-```aidl
+```
 curl --location --request DELETE 'localhost:8080/delete/hello_topic1?partitionValue=1&offsetValue=3'
 ```
 
